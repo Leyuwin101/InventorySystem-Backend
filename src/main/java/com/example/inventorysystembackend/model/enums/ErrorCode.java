@@ -1,0 +1,19 @@
+package com.example.inventorysystembackend.model.enums;
+
+public enum ErrorCode {
+    USER_NOT_FOUND,
+    CATEGORY_NOT_FOUND,
+    PRODUCT_NOT_FOUND,
+    INVENTORY_LOG_NOT_FOUND,
+    SALE_NOT_FOUND,
+    SUPPLIER_NOT_FOUND,
+    AUTH_FAILED,
+    VALIDATION_ERROR,
+    REFRESH_TOKEN_INVALID,
+    ACCESS_DENIED,
+    INTERNAL_ERROR,
+    RUNTIME_ERROR,
+    EMAIL_ALREADY_EXISTS,
+    DUPLICATE_SKU
+
+}

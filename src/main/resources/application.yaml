@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: InventorySystem-Backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/inventory_system_db
+    username: root
+    password: Leeuwindave07
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+  output:
+    ansi:
+      enabled: ALWAYS
+
+logging:
+  level:
+    root: INFO
+    com.example.inventorysystembackend: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    org.hibernate.orm.connections: DEBUG
+
+  file:
+    name: logs/app.log
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%level] [%thread] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
+
+jwt:
+  secret: "ThisIsAVeryLongSecureSecretKeyThatMustBeAtLeast32Bytes!"
