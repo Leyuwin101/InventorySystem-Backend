@@ -30,33 +30,34 @@ public class ProductMapper {
 
     public ProductResponse toDTO(Product product) {
 
-        CategoryDTO category = null;
+        CategoryDTO categoryDTO = null;
 
         if (product.getCategory() != null) {
-
-            category = new CategoryDTO(
+            categoryDTO = new CategoryDTO(
                     product.getCategory().getCategoryID(),
                     product.getCategory().getName()
             );
         }
 
-        List<ProductSupplierDTO> suppliers =
-                product.getSuppliers() == null
-                        ? List.of()
-                        : product.getSuppliers()
-                        .stream()
-                        .map(ps -> new ProductSupplierDTO(
-                                ps.getSupplier().getSupplierID(),
-                                ps.getSupplier().getName(),
-                                ps.getSupplier().getCompanyName(),
-                                ps.getSupplierPrice(),
-                                ps.getLeadTimeDays()
-                        ))
-                        .toList();
+        List<ProductSupplierDTO> suppliers = List.of();
+
+        if (product.getSuppliers() != null) {
+            suppliers = product.getSuppliers()
+                    .stream()
+                    .filter(ps -> ps != null && ps.getSupplier() != null)
+                    .map(ps -> new ProductSupplierDTO(
+                            ps.getSupplier().getSupplierID(),
+                            ps.getSupplier().getName(),
+                            ps.getSupplier().getCompanyName(),
+                            ps.getSupplierPrice(),
+                            ps.getLeadTimeDays()
+                    ))
+                    .toList();
+        }
 
         return new ProductResponse(
                 product.getProductID(),
-                category,
+                categoryDTO,
                 product.getName(),
                 product.getSku(),
                 product.getDescription(),

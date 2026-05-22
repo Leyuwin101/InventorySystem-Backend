@@ -2,8 +2,10 @@ package com.example.inventorysystembackend.auth.service;
 
 import com.example.inventorysystembackend.auth.dto.request.AuthRequest;
 import com.example.inventorysystembackend.auth.dto.response.AuthResponse;
+import com.example.inventorysystembackend.auth.dto.response.AuthUserResponse;
 import com.example.inventorysystembackend.auth.jwt.JwtUtil;
 import com.example.inventorysystembackend.exception.AuthException;
+import com.example.inventorysystembackend.exception.UserNotFoundException;
 import com.example.inventorysystembackend.model.entity.RefreshToken;
 import com.example.inventorysystembackend.model.entity.User;
 import com.example.inventorysystembackend.repository.RefreshTokenRepository;
@@ -11,6 +13,8 @@ import com.example.inventorysystembackend.repository.UserRepository;
 import com.example.inventorysystembackend.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,32 +44,39 @@ public class AuthService {
      */
     public AuthResponse login(AuthRequest request) {
 
-        log.info("[AUTH] Authenticating user={}", request.getEmail());
+        try {
+            log.info("[AUTH] Authenticating user={}", request.getEmail());
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    log.warn("[AUTH] User not found with email={}", request.getEmail());
-                    return new AuthException("Invalid credentials");
-                });
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new AuthException("Invalid credentials"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AuthException("Invalid credentials");
-        };
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new AuthException("Invalid credentials");
+            }
 
-        String accessToken = util.generateToken(
-                user.getEmail(),
-                user.getRole().name()
-        );
+            if (user.getRole() == null) {
+                throw new AuthException("User role not configured");
+            }
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, "WEB");
+            String accessToken = util.generateToken(
+                    user.getEmail(),
+                    user.getRole().name()
+            );
 
-        log.info("[AUTH] Login successful for email:{}", user.getEmail());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, "WEB");
 
-        AuthResponse response = new AuthResponse();
-        response.setAccessToken(accessToken);
-        response.setRefreshToken(refreshToken.getToken());
+            AuthResponse response = new AuthResponse();
+            response.setAccessToken(accessToken);
+            response.setRefreshToken(refreshToken.getToken());
 
-        return response;
+            return response;
+
+        } catch (AuthException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("[AUTH][LOGIN][FATAL]", e);
+            throw new AuthException("Login failed due to server error");
+        }
     }
 
     /**
@@ -85,34 +96,87 @@ public class AuthService {
      */
     public AuthResponse refreshAccessToken(String refreshToken) {
 
-        log.info("[AUTH] Refreshing access tokens");
+        log.info("[AUTH] Refreshing access token");
 
-        RefreshToken storedToken = refreshTokenService.validate(refreshToken);
+        try {
 
-        User user = storedToken.getUser();
+            if (refreshToken == null || refreshToken.isBlank()) {
+                throw new AuthException("Refresh token missing");
+            }
 
-        log.info("[AUTH] Valid refresh token for userId={}", user.getUserID());
+            RefreshToken storedToken = refreshTokenService.validate(refreshToken);
 
-        // Revoke old refresh tokens
-        storedToken.setRevoked(true);
-        tokenRepository.save(storedToken);
+            if (storedToken == null) {
+                throw new AuthException("Invalid refresh token");
+            }
 
-        // Create new access token
-        String newAccessToken = util.generateToken(
+            User user = storedToken.getUser();
+
+            if (user == null) {
+                throw new AuthException("User not found");
+            }
+
+            log.info("[AUTH] Valid refresh token for userId={}", user.getUserID());
+
+            /**
+             * Revoke old token
+             */
+            storedToken.setRevoked(true);
+            tokenRepository.save(storedToken);
+
+            /**
+             * Generate new access token
+             */
+            String newAccessToken = util.generateToken(
+                    user.getEmail(),
+                    user.getRole().name()
+            );
+
+            /**
+             * Rotate refresh token
+             */
+            RefreshToken newRefreshToken =
+                    refreshTokenService.createRefreshToken(user, "WEB");
+
+            log.info("[AUTH] Token rotation completed for userId={}",
+                    user.getUserID());
+
+            AuthResponse response = new AuthResponse();
+
+            response.setAccessToken(newAccessToken);
+            response.setRefreshToken(newRefreshToken.getToken());
+
+            return response;
+
+        } catch (Exception e) {
+
+            log.error("[AUTH] Refresh token failed", e);
+
+            throw new AuthException("Refresh token expired or invalid");
+        }
+    }
+
+    public AuthUserResponse getCurrentUser() {
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()
+                || auth.getPrincipal().equals("anonymousUser")) {
+            throw new AuthException("Not authenticated");
+        }
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+        String email = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException("User not found"));
+
+        return new AuthUserResponse(
                 user.getEmail(),
-                user.getRole().name()
+                user.getUsername(),
+                user.getRole()
         );
-
-        // Create new Refresh token (Rotation)
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user, "WEB");
-
-        log.info("[AUTH] Token rotation completed for userId={}", user.getUserID() );
-
-        AuthResponse response = new AuthResponse();
-        response.setAccessToken(newAccessToken);
-        response.setRefreshToken(newRefreshToken.getToken());
-
-        return response;
     }
 
 }

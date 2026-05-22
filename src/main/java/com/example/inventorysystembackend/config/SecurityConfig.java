@@ -4,6 +4,7 @@ import com.example.inventorysystembackend.auth.jwt.JwtFilter;
 import com.example.inventorysystembackend.auth.jwt.JwtUtil;
 import com.example.inventorysystembackend.auth.service.CustomUserDetailsService;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -42,48 +44,41 @@ public class SecurityConfig {
      * @throws Exception if security configuration fails
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter,  CorsConfigurationSource corsConfigurationSource) throws Exception {
 
         log.info("[CONFIG] Building Security Filter");
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors->{})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                                // Public authentication and documentation endpoints
-                                .requestMatchers(
-                                        "/",
-                                        // AUTH
-                                        "/api/auth/login",
-                                        "/api/auth/refresh",
+                        // PUBLIC ROUTES
+                        .requestMatchers(
+                                "/",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
 
-                                        // SWAGGER
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
+                        // PROTECTED ROUTES (grouped instead of repeating)
+                        .requestMatchers("/api/**").authenticated()
 
-                                        "/v3/api-docs/**",
-                                        "/v3/api-docs",
+                        .anyRequest().authenticated()
 
-                                        "/swagger-resources/**",
-                                        "/webjars/**"
-                                ).permitAll()
-                                .requestMatchers("/api/users/**")
-                                .authenticated()
-                                .requestMatchers("/api/categories/**")
-                                .authenticated()
-                                .requestMatchers("/api/suppliers/**")
-                                .authenticated()
-                                .requestMatchers("/api/products/**")
-                                .authenticated()
-                                .requestMatchers("/api/sales/**")
-                                .authenticated()
-                                .anyRequest()
-                                .authenticated()
-
-                            )
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized");
+                        })
+                )
                 // Register JWT filter before Spring authentication filter
                 .addFilterBefore(
                         jwtFilter,

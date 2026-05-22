@@ -1,5 +1,6 @@
 package com.example.inventorysystembackend.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +59,7 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductSupplier> suppliers = new HashSet<>();
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RefreshTokenImpl implements RefreshTokenService {
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 

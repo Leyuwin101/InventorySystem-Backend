@@ -21,31 +21,25 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil util;
     private final CustomUserDetailsService userDetailsService;
 
-
-
-    /**
-     * Intercepts incoming requests and authenticates users
-     * using JWT tokens provided in the Authorization header.
-     *
-     * Public authentication endpoints are excluded from filtering.
-     */
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
     ) throws ServletException, IOException {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/api/auth")) {
+        // Allow public endpoints
+        if (path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/refresh")
+                || "OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extract authorization header "Bearer Token"
         String authHeader = request.getHeader("Authorization");
 
-        // Extract token and email if header is valid
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -53,43 +47,40 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        log.debug("[JWT][DEBUG] JWT Token received");
-
-        String email;
-
         try {
-            email = util.extractEmail(token);
-        } catch (Exception e) {
-            log.warn("[JWT][WARNING] Invalid JWT Token format");
-            filterChain.doFilter(request, response);
-            return;
-        }
+            String email = util.extractEmail(token);
 
-        // Only authenticated if email exists and user is not yet authenticated
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            log.debug("[JWT][DEBUG] Authenticating user from JWT={}", email);
+                if (!util.validateToken(token, email)) {
+                    log.warn("[JWT] Invalid token for user={}", email);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return; // ❌ STOP HERE
+                }
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-            // Validate token before setting authentication
-            if (util.validateToken(token, email)) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
                         );
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                authToken.setDetails(
+                        new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
+                                .buildDetails(request)
+                );
 
-                log.debug("[JWT][DEBUG] Security context set for user={}", email);
-            } else {
-                log.warn("[JWT][WARNING] JWT validation failed for user={}", email);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+
+        } catch (Exception e) {
+            log.error("[JWT] Token processing failed", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
-        // Continue request flow
         filterChain.doFilter(request, response);
     }
-
 }

@@ -1,6 +1,7 @@
 package com.example.inventorysystembackend.model.entity;
 
 import com.example.inventorysystembackend.model.enums.InventoryType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public class InventoryLogs {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 
     @Enumerated(EnumType.STRING)
@@ -29,7 +31,7 @@ public class InventoryLogs {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = " reason")
+    @Column(name = "reason")
     private String reason;
 
     @PrePersist
