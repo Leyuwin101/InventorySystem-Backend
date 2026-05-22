@@ -3,9 +3,9 @@ spring:
     name: InventorySystem-Backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/inventory_system_db
-    username: root
-    password: Leeuwindave07
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,13 +22,16 @@ spring:
     ansi:
       enabled: ALWAYS
 
+server:
+  port: ${PORT:8080}
+
 logging:
   level:
     root: INFO
     com.example.inventorysystembackend: DEBUG
-    com.zaxxer.hikari: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    org.hibernate.orm.connections: DEBUG
+    com.zaxxer.hikari: INFO
+    org.springframework.jdbc.datasource: INFO
+    org.hibernate.orm.connections: INFO
 
   file:
     name: logs/app.log
@@ -38,4 +41,4 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"
 
 jwt:
-  secret: "ThisIsAVeryLongSecureSecretKeyThatMustBeAtLeast32Bytes!"
+  secret: ${JWT_SECRET}
