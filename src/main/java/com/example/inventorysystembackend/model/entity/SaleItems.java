@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class SaleItems {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sale_items_id")
     private Long saleItemID;
 

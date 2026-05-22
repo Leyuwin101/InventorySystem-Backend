@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class InventoryLogs {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inventory_log_id")
     private Long inventoryLogID;
 

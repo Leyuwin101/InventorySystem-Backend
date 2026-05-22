@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 // Public authentication and documentation endpoints
                                 .requestMatchers(
+                                        "/",
                                         // AUTH
                                         "/api/auth/login",
                                         "/api/auth/refresh",
