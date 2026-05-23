@@ -5,9 +5,11 @@ import com.example.inventorysystembackend.auth.dto.request.RefreshRequest;
 import com.example.inventorysystembackend.auth.dto.response.AuthResponse;
 import com.example.inventorysystembackend.auth.dto.response.AuthUserResponse;
 import com.example.inventorysystembackend.auth.service.AuthService;
+import com.example.inventorysystembackend.dto.request.UpdateAccountRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,14 @@ public class AuthController {
     public ResponseEntity<AuthUserResponse> getCurrentUser() {
 
         AuthUserResponse user = authService.getCurrentUser();
+
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<AuthUserResponse> updateCurrentUser(@Valid @RequestBody UpdateAccountRequest request) {
+
+        AuthUserResponse user = authService.updateCurrentUser(request);
 
         return ResponseEntity.ok(user);
     }

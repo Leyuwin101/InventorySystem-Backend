@@ -14,10 +14,16 @@ import lombok.Setter;
 @Schema(description = "User details")
 public class AuthUserResponse {
 
+    @Schema(description = "ID of the user")
+    private Long userId;
+
     @Schema(description = "Email of the user")
     private String email;
 
     @Schema(description = "Username of the user")
+    private String username;
+
+    @Schema(description = "Display name of the user")
     private String name;
 
 

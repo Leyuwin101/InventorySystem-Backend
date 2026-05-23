@@ -4,7 +4,9 @@ import com.example.inventorysystembackend.auth.dto.request.AuthRequest;
 import com.example.inventorysystembackend.auth.dto.response.AuthResponse;
 import com.example.inventorysystembackend.auth.dto.response.AuthUserResponse;
 import com.example.inventorysystembackend.auth.jwt.JwtUtil;
+import com.example.inventorysystembackend.dto.request.UpdateAccountRequest;
 import com.example.inventorysystembackend.exception.AuthException;
+import com.example.inventorysystembackend.exception.EmailAlreadyExistException;
 import com.example.inventorysystembackend.exception.UserNotFoundException;
 import com.example.inventorysystembackend.model.entity.RefreshToken;
 import com.example.inventorysystembackend.model.entity.User;
@@ -173,9 +175,50 @@ public class AuthService {
                 .orElseThrow(() -> new AuthException("User not found"));
 
         return new AuthUserResponse(
+                user.getUserID(),
                 user.getEmail(),
                 user.getUsername(),
+                user.getUsername(),
                 user.getRole()
+        );
+    }
+
+    public AuthUserResponse updateCurrentUser(UpdateAccountRequest request) {
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()
+                || auth.getPrincipal().equals("anonymousUser")) {
+            throw new AuthException("Not authenticated");
+        }
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String currentEmail = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (request.getUsername() != null && !request.getUsername().isBlank()) {
+            user.setUsername(request.getUsername().trim());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()
+                && !user.getEmail().equals(request.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new EmailAlreadyExistException("Email already exists: " + request.getEmail());
+            }
+
+            user.setEmail(request.getEmail().trim());
+        }
+
+        User updated = userRepository.save(user);
+
+        return new AuthUserResponse(
+                updated.getUserID(),
+                updated.getEmail(),
+                updated.getUsername(),
+                updated.getUsername(),
+                updated.getRole()
         );
     }
 

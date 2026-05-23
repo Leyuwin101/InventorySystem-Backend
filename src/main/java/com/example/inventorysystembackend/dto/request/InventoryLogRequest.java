@@ -17,7 +17,7 @@ public class InventoryLogRequest {
     @NotNull(message = "Product Id is required")
     private Long productId;
 
-    @NotBlank(message = "Inventory Type required")
+    @NotNull(message = "Inventory Type required")
     private InventoryType type;
 
     @NotNull(message = "Quantity is required")
