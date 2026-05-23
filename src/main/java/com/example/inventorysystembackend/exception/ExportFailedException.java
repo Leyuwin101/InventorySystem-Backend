@@ -1,7 +1,15 @@
 package com.example.inventorysystembackend.exception;
 
-public class ExportFailedException extends RuntimeException {
-  public ExportFailedException(String message) {
-    super(message);
-  }
+import com.example.inventorysystembackend.model.enums.ErrorCode;
+import org.springframework.http.HttpStatus;
+
+public class ExportFailedException extends BaseException {
+    public ExportFailedException(String message) {
+        super(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorCode.EXPORT_FAILED,
+                "Export Failed",
+                message
+        );
+    }
 }
