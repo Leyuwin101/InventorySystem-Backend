@@ -1,13 +1,15 @@
-# Stage 1: Build the app
 FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-COPY . .
+# Copy pom first (important for caching)
+COPY pom.xml .
+
+# Copy source
+COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run the app
 FROM bellsoft/liberica-openjdk-alpine:21
 
 WORKDIR /app
