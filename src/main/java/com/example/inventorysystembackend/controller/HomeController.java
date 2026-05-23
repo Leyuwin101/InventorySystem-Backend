@@ -10,7 +10,7 @@ import java.io.IOException;
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
-        return "Inventory System API Running";
+    public void home(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/swagger-ui/index.html");
     }
 }

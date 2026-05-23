@@ -48,14 +48,24 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
-            String email = util.extractEmail(token);
+            String email;
+
+            try {
+                email = util.extractEmail(token);
+            } catch (Exception e) {
+                log.warn("[JWT] Invalid token format");
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 if (!util.validateToken(token, email)) {
                     log.warn("[JWT] Invalid token for user={}", email);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return; // ❌ STOP HERE
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                    return;
                 }
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -82,5 +92,20 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-resources")
+                || path.startsWith("/webjars")
+                || path.startsWith("/swagger-ui.html")
+                || path.equals("/")
+                || path.startsWith("/api/auth");
     }
 }
