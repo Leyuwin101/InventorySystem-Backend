@@ -1,6 +1,9 @@
 package com.example.inventorysystembackend.dto.response;
 
+import com.example.inventorysystembackend.dto.analytics.KPIResponseDTO;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter

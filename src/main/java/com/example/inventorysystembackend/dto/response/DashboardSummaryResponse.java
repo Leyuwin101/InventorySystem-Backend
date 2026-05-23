@@ -13,7 +13,7 @@ public class DashboardSummaryResponse {
 
     private BigDecimal totalSales;
 
-    private Long transactionalCount;
+    private Long transactionCount;
 
     private Long lowStockCount;
 

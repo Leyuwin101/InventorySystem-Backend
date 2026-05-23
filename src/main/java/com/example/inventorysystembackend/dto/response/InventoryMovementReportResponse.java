@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InventoryMovementReportSystem {
+public class InventoryMovementReportResponse {
 
     private Long totalStockIn;
 
