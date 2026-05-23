@@ -16,7 +16,7 @@ public class SalesReportMapper {
 
     private final SaleMapper saleMapper;
 
-    private SalesSummaryReportResponse toResponse(
+    public SalesSummaryReportResponse toResponse(
             BigDecimal totalSales,
             Long totalTransactions,
             BigDecimal averageOrderValue,

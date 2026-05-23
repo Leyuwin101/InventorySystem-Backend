@@ -1,20 +1,16 @@
 package com.example.inventorysystembackend.service;
 
-import com.example.inventorysystembackend.model.entity.InventoryLogs;
-
-import java.util.List;
+import com.example.inventorysystembackend.dto.request.InventoryLogFilterRequest;
+import com.example.inventorysystembackend.dto.response.InventoryLogResponse;
+import com.example.inventorysystembackend.dto.response.PaginatedInventoryLogsResponse;
 
 public interface InventoryLogsService {
 
-    InventoryLogs createLog(InventoryLogs inventoryLog);
+    PaginatedInventoryLogsResponse getLogs(InventoryLogFilterRequest request);
 
-    List<InventoryLogs> getAllLogs();
+    InventoryLogResponse createStockIn(Long productId, Integer quantity, String reason);
 
-    List<InventoryLogs> getLogsByProduct(Long productId);
+    InventoryLogResponse createStockOut(Long productId, Integer quantity, String reason);
 
-    void stockIn(Long productId, Integer quantity, String reason);
-
-    void stockOut(Long productId, Integer quantity, String reason);
-
-    void adjustStock(Long productId, Integer quantity, String reason);
+    InventoryLogResponse adjustStock(Long productid, Integer quantity, String reason);
 }

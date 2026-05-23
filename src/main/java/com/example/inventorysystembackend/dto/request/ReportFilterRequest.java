@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestFilterRequest {
+public class ReportFilterRequest {
 
     private LocalDate startDate;
 
