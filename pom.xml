@@ -130,12 +130,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <schemaPaths>
-                                <param>src/main/resources/graphql-client</param>
-                            </schemaPaths>
-                            <packageName>com.example.inventorysystembackend.codegen</packageName>
-                            <addGeneratedAnnotation>true</addGeneratedAnnotation>
-                            <disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>
+                            <skip>true</skip>
                         </configuration>
                     </execution>
                 </executions>
