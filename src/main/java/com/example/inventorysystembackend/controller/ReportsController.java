@@ -42,7 +42,9 @@ public class ReportsController {
     public ResponseEntity<ApiRes<SalesSummaryReportResponse>> getSalesSummary(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
+
         SalesSummaryReportResponse response = reportService.getSaleSummary(request);
+
         return ResponseFactory.success("Sales summary fetched successfully", response);
     }
 
@@ -56,7 +58,9 @@ public class ReportsController {
     public ResponseEntity<ApiRes<InventoryMovementReportResponse>> getInventoryMovement(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
+
         InventoryMovementReportResponse response = reportService.getInventoryMovement(request);
+
         return ResponseFactory.success("Inventory movement report fetched successfully", response);
     }
 
@@ -70,7 +74,9 @@ public class ReportsController {
     public ResponseEntity<ApiRes<LowStockReportResponse>> getLowStock(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
+
         LowStockReportResponse response = reportService.getLowStock(request);
+
         return ResponseFactory.success("Low stock report fetched successfully", response);
     }
 
@@ -84,7 +90,9 @@ public class ReportsController {
     public ResponseEntity<ApiRes<CategoryPerformanceReportResponse>> getCategoryPerformance(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
+
         CategoryPerformanceReportResponse response = reportService.getCategoryPerformance(request);
+
         return ResponseFactory.success("Category performance report fetched successfully", response);
     }
 
@@ -98,7 +106,9 @@ public class ReportsController {
     public ResponseEntity<ApiRes<SupplierPerformanceReportResponse>> getSupplierPerformance(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
+
         SupplierPerformanceReportResponse response = reportService.getSupplierPerformance(request);
+
         return ResponseFactory.success("Supplier performance report fetched successfully", response);
     }
 }

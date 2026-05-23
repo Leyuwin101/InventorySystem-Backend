@@ -25,7 +25,7 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long>,
             COALESCE(SUM(ps.supplierPrice), 0) AS totalContribution,
             COUNT(ps.productSupplierID) AS suppliedProducts
         FROM Supplier s
-        JOIN s.productSuppliers ps
+        JOIN s.products ps
         GROUP BY s.supplierID, s.name
     """)
     List<SupplierPerformanceProjection> getSupplierPerformance();

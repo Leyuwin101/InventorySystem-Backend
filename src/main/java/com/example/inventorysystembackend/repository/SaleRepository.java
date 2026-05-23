@@ -20,7 +20,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long>,
     @Query("""
         SELECT
             COALESCE(SUM(s.totalAmount), 0) AS totalSales,
-            COUNT(s.saleID) AS totalTransactions,
+            COUNT(s.salesID) AS totalTransactions,
             COALESCE(AVG(s.totalAmount), 0) AS averageOrderValue
         FROM Sale s
     """)

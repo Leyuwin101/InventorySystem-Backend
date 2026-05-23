@@ -42,7 +42,9 @@ public class InventoryLogsController {
     public ResponseEntity<ApiRes<PaginatedInventoryLogsResponse>> getInventoryLogs(
             @Valid @ModelAttribute InventoryLogFilterRequest request
     ) {
+
         PaginatedInventoryLogsResponse response = inventoryLogsService.getLogs(request);
+
         return ResponseFactory.success("Inventory logs fetched successfully", response);
     }
 
@@ -55,7 +57,9 @@ public class InventoryLogsController {
     @PostMapping("/stock-in")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'INVENTORY_CLERK')")
     public ResponseEntity<ApiRes<InventoryLogResponse>> stockIn(@Valid @RequestBody InventoryLogRequest request) {
+
         InventoryLogResponse response = inventoryLogsService.createStockIn(request.getProductId(), request.getQuantity(), request.getReason());
+
         return ResponseFactory.created("Stock-in created successfully", response);
     }
 
@@ -68,7 +72,9 @@ public class InventoryLogsController {
     @PostMapping("/stock-out")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'INVENTORY_CLERK')")
     public ResponseEntity<ApiRes<InventoryLogResponse>> stockOut(@Valid @RequestBody InventoryLogRequest request) {
+
         InventoryLogResponse response = inventoryLogsService.createStockOut(request.getProductId(), request.getQuantity(), request.getReason());
+
         return ResponseFactory.created("Stock-out created successfully", response);
     }
 
@@ -81,7 +87,9 @@ public class InventoryLogsController {
     @PostMapping("/adjust")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'INVENTORY_CLERK')")
     public ResponseEntity<ApiRes<InventoryLogResponse>> adjustStock(@Valid @RequestBody InventoryLogRequest request) {
+
         InventoryLogResponse response = inventoryLogsService.adjustStock(request.getProductId(), request.getQuantity(), request.getReason());
+
         return ResponseFactory.created("Inventory adjustment created successfully", response);
     }
 }

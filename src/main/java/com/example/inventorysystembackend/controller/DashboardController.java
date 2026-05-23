@@ -33,7 +33,9 @@ public class DashboardController {
     @GetMapping("/summary")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
     public ResponseEntity<ApiRes<DashboardSummaryResponse>> getDashboardSummary() {
+
         DashboardSummaryResponse response = dashboardService.getDashboardSummary();
+
         return ResponseFactory.success("Dashboard summary fetched successfully", response);
     }
 }
