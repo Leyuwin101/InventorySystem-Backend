@@ -54,3 +54,10 @@ logging:
 
 jwt:
   secret: ${JWT_SECRET}
+
+app:
+  frontend-url: ${FRONTEND_URL:https://ssims-project-frontend.vercel.app}
+  refresh-cookie:
+    name: ${REFRESH_COOKIE_NAME:refreshToken}
+    max-age-seconds: ${REFRESH_COOKIE_MAX_AGE_SECONDS:604800}
+    secure: ${REFRESH_COOKIE_SECURE:true}

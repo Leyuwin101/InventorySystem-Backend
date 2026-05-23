@@ -12,6 +12,9 @@ public class AuthRequest {
     @Schema(example = "admin@gmail.com")
     private String email;
 
+    @Schema(example = "admin")
+    private String username;
+
     @Schema(example = "admin123")
     private String password;
 }

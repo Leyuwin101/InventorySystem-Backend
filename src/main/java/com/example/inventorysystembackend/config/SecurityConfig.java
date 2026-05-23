@@ -58,8 +58,7 @@ public class SecurityConfig {
                         // PUBLIC ROUTES
                         .requestMatchers(
                                 "/",
-                                "/api/auth/login",
-                                "/api/auth/refresh",
+                                "/api/auth/**",
 
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
@@ -79,7 +78,8 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("Unauthorized");
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\":\"Unauthorized\"}");
                         })
                 )
                 // Register JWT filter before Spring authentication filter

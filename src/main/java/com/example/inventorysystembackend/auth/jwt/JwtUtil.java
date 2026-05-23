@@ -1,6 +1,7 @@
 package com.example.inventorysystembackend.auth.jwt;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,10 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("JWT_SECRET must be set and at least 32 characters long");
+        }
+
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -60,6 +65,10 @@ public class JwtUtil {
      */
     public String extractEmail(String token) {
 
+        if (token == null || token.isBlank()) {
+            throw new JwtException("JWT token is missing");
+        }
+
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -99,6 +108,10 @@ public class JwtUtil {
      * @return true if token is valid and not expired
      */
     public boolean validateToken(String token, String email) {
+
+        if (email == null || email.isBlank()) {
+            return false;
+        }
 
         String extractEmail = extractEmail(token);
 

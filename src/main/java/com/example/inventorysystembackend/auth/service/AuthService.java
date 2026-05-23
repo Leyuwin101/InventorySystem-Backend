@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,10 +49,30 @@ public class AuthService {
     public AuthResponse login(AuthRequest request) {
 
         try {
-            log.info("[AUTH] Authenticating user={}", request.getEmail());
+            if (request == null || request.getPassword() == null || request.getPassword().isBlank()) {
+                throw new AuthException("Email/username and password are required");
+            }
 
-            User user = userRepository.findByEmail(request.getEmail())
+            String email = request.getEmail() == null ? null : request.getEmail().trim();
+            String username = request.getUsername() == null ? null : request.getUsername().trim();
+            String identifier = email != null && !email.isBlank() ? email : username;
+
+            if (identifier == null || identifier.isBlank()) {
+                throw new AuthException("Email/username and password are required");
+            }
+
+            log.info("[AUTH] Authenticating identifier={}", identifier);
+
+            Optional<User> foundUser = email != null && !email.isBlank()
+                    ? userRepository.findByEmail(email)
+                    : userRepository.findByUsername(username);
+
+            User user = foundUser
                     .orElseThrow(() -> new AuthException("Invalid credentials"));
+
+            if (user.getPassword() == null || user.getPassword().isBlank()) {
+                throw new AuthException("Invalid credentials");
+            }
 
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new AuthException("Invalid credentials");
@@ -76,7 +98,7 @@ public class AuthService {
         } catch (AuthException e) {
             throw e;
         } catch (Exception e) {
-            log.error("[AUTH][LOGIN][FATAL]", e);
+            log.error("[AUTH][LOGIN] Unexpected login failure: {}", e.getMessage(), e);
             throw new AuthException("Login failed due to server error");
         }
     }
@@ -118,6 +140,10 @@ public class AuthService {
                 throw new AuthException("User not found");
             }
 
+            if (user.getRole() == null) {
+                throw new AuthException("User role not configured");
+            }
+
             log.info("[AUTH] Valid refresh token for userId={}", user.getUserID());
 
             /**
@@ -152,7 +178,7 @@ public class AuthService {
 
         } catch (Exception e) {
 
-            log.error("[AUTH] Refresh token failed", e);
+            log.warn("[AUTH] Refresh token failed: {}", e.getMessage());
 
             throw new AuthException("Refresh token expired or invalid");
         }
@@ -167,7 +193,9 @@ public class AuthService {
             throw new AuthException("Not authenticated");
         }
 
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!(auth.getPrincipal() instanceof UserDetails userDetails)) {
+            throw new AuthException("Invalid authentication principal");
+        }
 
         String email = userDetails.getUsername();
 
@@ -192,7 +220,10 @@ public class AuthService {
             throw new AuthException("Not authenticated");
         }
 
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!(auth.getPrincipal() instanceof UserDetails userDetails)) {
+            throw new AuthException("Invalid authentication principal");
+        }
+
         String currentEmail = userDetails.getUsername();
 
         User user = userRepository.findByEmail(currentEmail)

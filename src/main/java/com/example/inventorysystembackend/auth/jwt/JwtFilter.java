@@ -1,6 +1,7 @@
 package com.example.inventorysystembackend.auth.jwt;
 
 import com.example.inventorysystembackend.auth.service.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Allow public endpoints
+        // Public endpoints and preflight requests should never attempt JWT parsing.
         if (path.startsWith("/api/auth/login")
                 || path.startsWith("/api/auth/refresh")
                 || "OPTIONS".equalsIgnoreCase(request.getMethod())) {
@@ -52,8 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
             try {
                 email = util.extractEmail(token);
-            } catch (Exception e) {
-                log.warn("[JWT] Invalid token format");
+            } catch (JwtException | IllegalArgumentException e) {
+                log.warn("[JWT] Invalid access token: {}", e.getMessage());
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -85,9 +86,17 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
-        } catch (Exception e) {
-            log.error("[JWT] Token processing failed", e);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("[JWT] Token processing failed: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\":\"Unauthorized\"}");
+            return;
+        } catch (Exception e) {
+            log.warn("[JWT] Authentication lookup failed: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\":\"Unauthorized\"}");
             return;
         }
 

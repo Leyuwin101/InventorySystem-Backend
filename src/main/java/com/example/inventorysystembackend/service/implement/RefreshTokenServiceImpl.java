@@ -72,6 +72,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         log.info("[REFRESH-TOKEN][VALIDATE] validating refresh token");
 
+        if (token == null || token.isBlank()) {
+            log.warn("[REFRESH-TOKEN][VALIDATE] Missing refresh token");
+            throw new RefreshTokenException("Refresh token missing");
+        }
+
         RefreshToken storedToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> {
                     log.warn("[REFRESH-TOKEN][VALIDATE] Invalid refresh token");
@@ -79,12 +84,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 });
 
         if(storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            log.warn("[REFRESH-TOKEN][VALIDATE] Expired refresh token used for userId={}", storedToken.getUser().getUserID());
+            Long userId = storedToken.getUser() == null ? null : storedToken.getUser().getUserID();
+            log.warn("[REFRESH-TOKEN][VALIDATE] Expired refresh token used for userId={}", userId);
             throw new RefreshTokenException("Refresh token is expired");
         }
 
         if(storedToken.isRevoked()) {
-            log.warn("[REFRESH-TOKEN][VALIDATE] Revoked refresh token attempt tokenPrefix={}", token.substring(0, 10));
+            log.warn("[REFRESH-TOKEN][VALIDATE] Revoked refresh token attempt tokenPrefix={}", token.substring(0, Math.min(10, token.length())));
             throw new RefreshTokenException("Refresh token is revoked");
         }
 
