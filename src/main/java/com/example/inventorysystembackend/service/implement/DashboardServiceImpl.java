@@ -3,7 +3,9 @@ package com.example.inventorysystembackend.service.implement;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.inventorysystembackend.dto.response.DashboardSummaryResponse;
 import com.example.inventorysystembackend.mapper.DashboardMapper;
@@ -28,6 +30,8 @@ public class DashboardServiceImpl implements DashboardService {
     private final DashboardMapper dashboardMapper;
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "dashboard", key = "'summary'")
     public DashboardSummaryResponse getDashboardSummary() {
         log.info("[DASHBOARD][SUMMARY] Fetching dashboard summary metrics");
 
@@ -37,7 +41,7 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         long transactionCount = saleRepository.count();
-        long lowStockCount = productRepository.findLowStockProducts().size();
+        long lowStockCount = productRepository.countLowStockProducts();
         long stockMovementCount = inventoryLogsRepository.count();
 
         String topCategory = productRepository.getCategoryRevenue().stream()

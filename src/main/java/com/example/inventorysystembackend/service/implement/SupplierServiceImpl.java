@@ -10,7 +10,11 @@ import com.example.inventorysystembackend.repository.SupplierRepository;
 import com.example.inventorysystembackend.service.SupplierService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +37,12 @@ public class SupplierServiceImpl implements SupplierService {
      * @return saved supplier response
      */
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "suppliers", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public SupplierResponse createSupplier(SupplierRequest request) {
 
         log.info("[SUPPLIER][CREATE] Start name={}", request.getName());
@@ -61,6 +71,13 @@ public class SupplierServiceImpl implements SupplierService {
      * @return updated supplier response
      */
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "suppliers", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public SupplierResponse updateSupplier(Long supplierId, SupplierRequest request) {
 
         log.info("[SUPPLIER][UPDATE] Start id={}", supplierId);
@@ -109,6 +126,13 @@ public class SupplierServiceImpl implements SupplierService {
      * @param supplierId id of the supplier to delete
      */
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "suppliers", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public void deleteSupplier(Long supplierId) {
 
         log.info("[SUPPLIER][DELETE] Start id={}", supplierId);
@@ -135,6 +159,8 @@ public class SupplierServiceImpl implements SupplierService {
      * @return supplier response
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "suppliers", key = "'detail:' + #supplierId")
     public SupplierResponse getSupplierById(Long supplierId) {
 
         log.info("[SUPPLIER][GET] Start id={}", supplierId);
@@ -159,6 +185,8 @@ public class SupplierServiceImpl implements SupplierService {
      * @return suppliers response
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "suppliers", key = "'all'")
     public List<SupplierResponse> getAllSuppliers() {
 
         log.info("[SUPPLIER][GET_ALL] Fetching all suppliers");

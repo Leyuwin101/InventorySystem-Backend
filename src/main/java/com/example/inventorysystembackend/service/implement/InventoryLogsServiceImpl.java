@@ -4,6 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,11 @@ public class InventoryLogsServiceImpl implements InventoryLogsService {
     private final InventoryLogsMapper inventoryLogsMapper;
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(
+            cacheNames = "inventoryLogs",
+            key = "T(java.util.Objects).hash(#request.page, #request.limit, #request.productID, #request.type, #request.startDate, #request.endDate, #request.sortBy, #request.sortDirection)"
+    )
     public PaginatedInventoryLogsResponse getLogs(InventoryLogFilterRequest request) {
         Sort.Direction direction = "asc".equalsIgnoreCase(request.getSortDirection()) ? Sort.Direction.ASC : Sort.Direction.DESC;
         PageRequest pageRequest = PageRequest.of(
@@ -59,18 +67,36 @@ public class InventoryLogsServiceImpl implements InventoryLogsService {
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public InventoryLogResponse createStockIn(Long productId, Integer quantity, String reason) {
         return createInventoryLog(productId, quantity, reason, InventoryType.STOCK_IN);
     }
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public InventoryLogResponse createStockOut(Long productId, Integer quantity, String reason) {
         return createInventoryLog(productId, quantity, reason, InventoryType.STOCK_OUT);
     }
 
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public InventoryLogResponse adjustStock(Long productId, Integer quantity, String reason) {
         return createInventoryLog(productId, quantity, reason, InventoryType.ADJUSTMENT);
     }

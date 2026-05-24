@@ -18,6 +18,9 @@ import com.example.inventorysystembackend.repository.SupplierRepository;
 import com.example.inventorysystembackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +56,11 @@ public class ProductServiceImpl implements ProductService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public ProductResponse createProduct(ProductRequest request) {
 
         log.info("[PRODUCT][CREATE] Start name={}. sku={}", request.getName(), request.getSku());
@@ -123,6 +131,11 @@ public class ProductServiceImpl implements ProductService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
 
         log.info("[PRODUCT][UPDATE] Start id={}", productId);
@@ -180,6 +193,11 @@ public class ProductServiceImpl implements ProductService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public void deleteProduct(Long productId) {
 
         log.info("[PRODUCT][DELETE] Start id={}", productId);
@@ -208,11 +226,13 @@ public class ProductServiceImpl implements ProductService {
      * @return product response DTO
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "products", key = "'detail:' + #productId")
     public ProductResponse getProductById(Long productId) {
 
         log.info("[PRODUCT][GET] Start id={}", productId);
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findDetailedById(productId)
                 .orElseThrow(() -> {
                     log.warn("[PRODUCT][GET][NOT_FOUND] id={}", productId);
                     return new ProductNotFoundException("Product not found: " + productId);
@@ -233,11 +253,13 @@ public class ProductServiceImpl implements ProductService {
      * @return list of product responses
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "products", key = "'all'")
     public List<ProductResponse> getAllProducts() {
 
         log.info("[PRODUCT][GET_ALL] Fetching all products");
 
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllWithRelations();
 
         return products.stream()
                 .map(productMapper::toDTO)
@@ -260,6 +282,12 @@ public class ProductServiceImpl implements ProductService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public ProductResponse updateStock(Long productId, Integer quantity) {
 
         log.info("[PRODUCT][STOCKS][UPDATE] Start id={}, qty={}", productId, quantity);
@@ -298,6 +326,8 @@ public class ProductServiceImpl implements ProductService {
      * @return list of low-stock product responses
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "products", key = "'low-stock'")
     public List<ProductResponse> getLowStockProduct() {
 
         log.info("[PRODUCTS][LOW_STOCK] Fetching low stock products");

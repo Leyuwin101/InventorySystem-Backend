@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 @Table(name = "product_suppliers",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"product_id", "supplier_id"})
+        },
+        indexes = {
+                @Index(name = "idx_product_suppliers_product_id", columnList = "product_id"),
+                @Index(name = "idx_product_suppliers_supplier_id", columnList = "supplier_id")
         }
 )
 public class ProductSupplier {

@@ -9,7 +9,11 @@ import com.example.inventorysystembackend.repository.CategoryRepository;
 import com.example.inventorysystembackend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +36,12 @@ public class CategoryServiceImpl implements CategoryService {
      * @return saved category response
      */
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "categories", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public CategoryResponse createCategory(CategoryRequest request) {
 
         log.info("[CATEGORY][CREATE] Start name={}", request.getName());
@@ -61,6 +71,13 @@ public class CategoryServiceImpl implements CategoryService {
      */
 
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "categories", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public CategoryResponse updateCategory(Long categoryId, CategoryRequest request) {
 
         log.info("[CATEGORY][UPDATE] Start id={}", categoryId);
@@ -92,6 +109,13 @@ public class CategoryServiceImpl implements CategoryService {
      * @param categoryId id of the category to delete
      */
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "categories", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public void deleteCategory(Long categoryId) {
 
         log.info("[CATEGORY][DELETE] Start id={}", categoryId);
@@ -120,6 +144,8 @@ public class CategoryServiceImpl implements CategoryService {
      * @return category response
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "categories", key = "'detail:' + #categoryId")
     public CategoryResponse getCategoryById(Long categoryId) {
 
         log.info("[CATEGORY][GET] Start id={}", categoryId);
@@ -144,6 +170,8 @@ public class CategoryServiceImpl implements CategoryService {
      * @return category response
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "categories", key = "'all'")
     public List<CategoryResponse> getAllCategories() {
 
         log.info("[CATEGORY][GET_ALL] Fetching all categories");

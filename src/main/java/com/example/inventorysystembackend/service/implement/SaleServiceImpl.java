@@ -18,6 +18,9 @@ import com.example.inventorysystembackend.repository.UserRepository;
 import com.example.inventorysystembackend.service.SaleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +65,13 @@ public class SaleServiceImpl implements SaleService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "sales", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public SaleResponse createSale(SaleRequest request) {
 
         log.info("[SALE][CREATE] Start id={}", request.getUserId());
@@ -134,11 +144,13 @@ public class SaleServiceImpl implements SaleService {
      * @return sale response DTO
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "sales", key = "'detail:' + #saleId")
     public SaleResponse getSaleById(Long saleId) {
 
         log.info("[SALE][GET] Start id={}", saleId);
 
-        Sale sale = saleRepository.findById(saleId)
+        Sale sale = saleRepository.findDetailedById(saleId)
                 .orElseThrow(() -> {
                     log.warn("[SALE][GET][NOT_FOUND] id={}", saleId);
                     return new SaleNotFoundException("Sale not found with id: " + saleId);
@@ -159,11 +171,13 @@ public class SaleServiceImpl implements SaleService {
      * @return list of sale responses
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "sales", key = "'all'")
     public List<SaleResponse> getAllSales() {
 
         log.info("[SALE][GET_ALL] Fetching all products");
 
-        List<Sale> sales = saleRepository.findAll();
+        List<Sale> sales = saleRepository.findAllWithRelations();
 
         return sales.stream()
                 .map(saleMapper::toDTO)
@@ -185,6 +199,8 @@ public class SaleServiceImpl implements SaleService {
      * @return list of sales made by the user
      */
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "sales", key = "'user:' + #userId")
     public List<SaleResponse> getSalesByUser(Long userId) {
 
         log.info("[SALE][GET_SALE_USER] Fetching sales by user");
@@ -220,11 +236,18 @@ public class SaleServiceImpl implements SaleService {
      */
     @Transactional
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "sales", allEntries = true),
+            @CacheEvict(cacheNames = "products", allEntries = true),
+            @CacheEvict(cacheNames = "dashboard", allEntries = true),
+            @CacheEvict(cacheNames = "inventoryLogs", allEntries = true),
+            @CacheEvict(cacheNames = "reports", allEntries = true)
+    })
     public void cancelSale(Long saleId) {
 
         log.info("[SALE][CANCEL] Start id={}", saleId);
 
-        Sale sale = saleRepository.findById(saleId)
+        Sale sale = saleRepository.findDetailedById(saleId)
                 .orElseThrow(() -> {
                     log.warn("[SALE][CANCEL][NOT_FOUND] id={}", saleId);
                     return new SaleNotFoundException("Sale not found with id: " + saleId);

@@ -20,7 +20,9 @@ import com.example.inventorysystembackend.repository.SupplierRepository;
 import com.example.inventorysystembackend.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -43,6 +45,8 @@ public class ReportServiceImpl implements ReportService {
     private final AnalyticsMapper analyticsMapper;
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reports", key = "'sales:' + T(java.util.Objects).hash(#request.startDate, #request.endDate, #request.page, #request.limit)")
     public SalesSummaryReportResponse getSaleSummary(ReportFilterRequest request) {
 
         SaleSummaryProjection summary = saleRepository.getSalesSummary();
@@ -52,11 +56,13 @@ public class ReportServiceImpl implements ReportService {
                 summary.getTotalTransactions(),
                 summary.getAverageOrderValue(),
                 List.of(),
-                saleRepository.findAll()
+                saleRepository.findAllWithRelations()
         );
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reports", key = "'inventory:' + T(java.util.Objects).hash(#request.startDate, #request.endDate, #request.productId, #request.page, #request.limit)")
     public InventoryMovementReportResponse getInventoryMovement(ReportFilterRequest request) {
 
         long stockIn = inventoryLogsRepository.countByType(InventoryType.STOCK_IN);
@@ -75,6 +81,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reports", key = "'low-stock:' + T(java.util.Objects).hash(#request.categoryId, #request.productId)")
     public LowStockReportResponse getLowStock(ReportFilterRequest request) {
 
         var products = productRepository.findLowStockProducts();
@@ -86,6 +94,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reports", key = "'category:' + T(java.util.Objects).hash(#request.startDate, #request.endDate, #request.categoryId)")
     public CategoryPerformanceReportResponse getCategoryPerformance(ReportFilterRequest request) {
 
         List<CategoryRevenueProjection> projections =
@@ -123,6 +133,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reports", key = "'supplier:' + T(java.util.Objects).hash(#request.startDate, #request.endDate, #request.supplierId)")
     public SupplierPerformanceReportResponse getSupplierPerformance(ReportFilterRequest request) {
 
         List<SupplierPerformanceProjection> projections =

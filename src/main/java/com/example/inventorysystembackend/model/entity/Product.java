@@ -13,7 +13,15 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "products")
+@Table(
+        name = "products",
+        indexes = {
+                @Index(name = "idx_products_category_id", columnList = "category_id"),
+                @Index(name = "idx_products_sku", columnList = "sku"),
+                @Index(name = "idx_products_name", columnList = "name"),
+                @Index(name = "idx_products_stock_minimum", columnList = "stock_quantity, minimum_stock")
+        }
+)
 public class Product {
 
     @Id

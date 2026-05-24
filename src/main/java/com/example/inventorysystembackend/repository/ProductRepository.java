@@ -2,9 +2,11 @@ package com.example.inventorysystembackend.repository;
 
 import com.example.inventorysystembackend.model.entity.Product;
 import com.example.inventorysystembackend.projections.CategoryRevenueProjection;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,11 +20,26 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     boolean existsBySku(String sku);
 
+    @EntityGraph(attributePaths = {"category", "suppliers", "suppliers.supplier"})
+    @Query("SELECT DISTINCT p FROM Product p")
+    List<Product> findAllWithRelations();
+
+    @EntityGraph(attributePaths = {"category", "suppliers", "suppliers.supplier"})
+    @Query("SELECT p FROM Product p WHERE p.productID = :productId")
+    Optional<Product> findDetailedById(@Param("productId") Long productId);
+
+    @EntityGraph(attributePaths = {"category", "suppliers", "suppliers.supplier"})
     @Query("""
         SELECT p FROM Product p
         WHERE p.stockQuantity <= p.minimumStock
     """)
     List<Product> findLowStockProducts();
+
+    @Query("""
+        SELECT COUNT(p) FROM Product p
+        WHERE p.stockQuantity <= p.minimumStock
+    """)
+    long countLowStockProducts();
 
     @Query("""
         SELECT

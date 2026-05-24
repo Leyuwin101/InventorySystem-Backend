@@ -11,7 +11,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "suppliers")
+@Table(
+        name = "suppliers",
+        indexes = {
+                @Index(name = "idx_suppliers_name", columnList = "name"),
+                @Index(name = "idx_suppliers_email", columnList = "email")
+        }
+)
 public class Supplier {
 
     @Id
