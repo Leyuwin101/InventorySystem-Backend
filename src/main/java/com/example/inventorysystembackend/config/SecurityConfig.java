@@ -58,7 +58,8 @@ public class SecurityConfig {
                         // PUBLIC ROUTES
                         .requestMatchers(
                                 "/",
-                                "/api/auth/**",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
 
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",

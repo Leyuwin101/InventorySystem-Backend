@@ -115,6 +115,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 || path.startsWith("/webjars")
                 || path.startsWith("/swagger-ui.html")
                 || path.equals("/")
-                || path.startsWith("/api/auth");
+                || path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/refresh");
     }
 }

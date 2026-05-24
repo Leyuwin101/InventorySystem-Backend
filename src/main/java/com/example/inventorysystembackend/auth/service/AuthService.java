@@ -84,6 +84,8 @@ public class AuthService {
 
             String accessToken = util.generateToken(
                     user.getEmail(),
+                    user.getUserID(),
+                    user.getUsername(),
                     user.getRole().name()
             );
 
@@ -92,6 +94,7 @@ public class AuthService {
             AuthResponse response = new AuthResponse();
             response.setAccessToken(accessToken);
             response.setRefreshToken(refreshToken.getToken());
+            response.setUser(toAuthUserResponse(user));
 
             return response;
 
@@ -157,6 +160,8 @@ public class AuthService {
              */
             String newAccessToken = util.generateToken(
                     user.getEmail(),
+                    user.getUserID(),
+                    user.getUsername(),
                     user.getRole().name()
             );
 
@@ -173,6 +178,7 @@ public class AuthService {
 
             response.setAccessToken(newAccessToken);
             response.setRefreshToken(newRefreshToken.getToken());
+            response.setUser(toAuthUserResponse(user));
 
             return response;
 
@@ -202,13 +208,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("User not found"));
 
-        return new AuthUserResponse(
-                user.getUserID(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getUsername(),
-                user.getRole()
-        );
+        return toAuthUserResponse(user);
     }
 
     public AuthUserResponse updateCurrentUser(UpdateAccountRequest request) {
@@ -244,12 +244,16 @@ public class AuthService {
 
         User updated = userRepository.save(user);
 
+        return toAuthUserResponse(updated);
+    }
+
+    private AuthUserResponse toAuthUserResponse(User user) {
         return new AuthUserResponse(
-                updated.getUserID(),
-                updated.getEmail(),
-                updated.getUsername(),
-                updated.getUsername(),
-                updated.getRole()
+                user.getUserID(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getUsername(),
+                user.getRole()
         );
     }
 

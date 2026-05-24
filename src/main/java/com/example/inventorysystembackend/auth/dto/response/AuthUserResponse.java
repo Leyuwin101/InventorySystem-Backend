@@ -1,5 +1,6 @@
 package com.example.inventorysystembackend.auth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.example.inventorysystembackend.model.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Setter;
 public class AuthUserResponse {
 
     @Schema(description = "ID of the user")
+    @JsonProperty("id")
     private Long userId;
 
     @Schema(description = "Email of the user")

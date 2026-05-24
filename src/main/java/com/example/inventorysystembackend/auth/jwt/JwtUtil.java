@@ -33,20 +33,24 @@ public class JwtUtil {
      *
      * The token contains:
      * - The user's email as the subject
-     * - The user's role as the custom claim
+     * - The user's id, username, and role as separate custom claims
      * - Issued and expiration timestamps
      *
      * Token validity: 1 hour
      *
      * @param email authenticated user's email
+     * @param userId authenticated user's id
+     * @param username authenticated user's username
      * @param role authenticated user's role
      * @return signed JWT access token
      */
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, Long userId, String username, String role) {
 
         // Create a JWT Token
         return Jwts.builder()
                 .setSubject(email) // store the email inside the token(payload)
+                .claim("userId", userId)
+                .claim("username", username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Expiration time 1 hour
