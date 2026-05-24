@@ -4,6 +4,7 @@ import com.example.inventorysystembackend.auth.dto.request.AuthRequest;
 import com.example.inventorysystembackend.auth.dto.response.AuthResponse;
 import com.example.inventorysystembackend.auth.dto.response.AuthUserResponse;
 import com.example.inventorysystembackend.auth.jwt.JwtUtil;
+import com.example.inventorysystembackend.auth.security.CustomUserDetails;
 import com.example.inventorysystembackend.dto.request.UpdateAccountRequest;
 import com.example.inventorysystembackend.exception.AuthException;
 import com.example.inventorysystembackend.exception.EmailAlreadyExistException;
@@ -197,6 +198,16 @@ public class AuthService {
         if (auth == null || !auth.isAuthenticated()
                 || auth.getPrincipal().equals("anonymousUser")) {
             throw new AuthException("Not authenticated");
+        }
+
+        if (auth.getPrincipal() instanceof CustomUserDetails currentUser) {
+            return new AuthUserResponse(
+                    currentUser.getUserId(),
+                    currentUser.getEmail(),
+                    currentUser.getAccountUsername(),
+                    currentUser.getAccountUsername(),
+                    currentUser.getRole()
+            );
         }
 
         if (!(auth.getPrincipal() instanceof UserDetails userDetails)) {

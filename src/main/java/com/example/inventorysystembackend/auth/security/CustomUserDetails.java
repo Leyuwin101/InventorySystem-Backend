@@ -15,6 +15,9 @@ public class CustomUserDetails implements UserDetails {
     private final User user;
 
     public Long getUserId() { return user.getUserID(); }
+    public String getAccountUsername() { return user.getUsername(); }
+    public String getEmail() { return user.getEmail(); }
+    public com.example.inventorysystembackend.model.enums.Role getRole() { return user.getRole(); }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
