@@ -68,7 +68,7 @@ public class SaleController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'GUEST')")
     public ResponseEntity<ApiRes<SaleResponse>> getSalesById(@PathVariable("id") Long saleId) {
 
         SaleResponse sale = saleService.getSaleById(saleId);
@@ -91,7 +91,7 @@ public class SaleController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'GUEST')")
     public ResponseEntity<ApiRes<List<SaleResponse>>> getAllSales() {
 
         List<SaleResponse> sales = saleService.getAllSales();
@@ -116,7 +116,7 @@ public class SaleController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'GUEST')")
     public ResponseEntity<ApiRes<List<SaleResponse>>> getSalesByUser(@PathVariable Long userId) {
 
         List<SaleResponse> sales = saleService.getSalesByUser(userId);

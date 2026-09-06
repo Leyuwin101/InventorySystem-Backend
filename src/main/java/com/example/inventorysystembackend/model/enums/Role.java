@@ -4,5 +4,6 @@ public enum Role {
     ADMIN,
     MANAGER,
     CASHIER,
-    INVENTORY_CLERK
+    INVENTORY_CLERK,
+    GUEST
 }

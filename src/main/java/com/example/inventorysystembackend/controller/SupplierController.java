@@ -116,7 +116,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','INVENTORY_CLERK','GUEST')")
     public ResponseEntity<ApiRes<SupplierResponse>> getSupplierById(@PathVariable("id") Long supplierId) {
 
         SupplierResponse supplier = supplierService.getSupplierById(supplierId);
@@ -137,7 +137,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','INVENTORY_CLERK','GUEST')")
     public ResponseEntity<ApiRes<List<SupplierResponse>>> getAllSuppliers() {
 
         List<SupplierResponse> suppliers = supplierService.getAllSuppliers();

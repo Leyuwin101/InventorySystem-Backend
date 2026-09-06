@@ -31,6 +31,7 @@ public class UserController{
     /// | MANAGER         | Manage products/orders/reports |
     /// | CASHIER         | Sales transactions only        |
     /// | INVENTORY_CLERK | Inventory stock management     |
+    /// | GUEST           | Read-only system browsing      |
 
     /**
      * Creates a new user account.
@@ -123,7 +124,7 @@ public class UserController{
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'GUEST')")
     public ResponseEntity<ApiRes<UserResponse>> getUserById(@PathVariable("id") Long userId) {
 
         UserResponse user = userService.getUserById(userId);
@@ -144,7 +145,7 @@ public class UserController{
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUEST')")
     public ResponseEntity<ApiRes<List<UserResponse>>> getAllUsers() {
 
         List<UserResponse> responses = userService.getAllUsers();

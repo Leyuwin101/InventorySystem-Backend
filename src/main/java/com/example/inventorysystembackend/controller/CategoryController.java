@@ -120,7 +120,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<CategoryResponse>> getCategoryById(@PathVariable("id") Long categoryId) {
 
         CategoryResponse category = categoryService.getCategoryById(categoryId);
@@ -141,7 +141,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<List<CategoryResponse>>> getAllCategories() {
 
         List<CategoryResponse> categories = categoryService.getAllCategories();

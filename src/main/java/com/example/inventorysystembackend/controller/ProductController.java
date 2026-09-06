@@ -122,7 +122,7 @@ public class ProductController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<ProductResponse>> getProductById(@PathVariable("id") Long productId) {
 
         ProductResponse product = productService.getProductById(productId);
@@ -144,7 +144,7 @@ public class ProductController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<List<ProductResponse>>> getAllProducts() {
 
         List<ProductResponse> products = productService.getAllProducts();
@@ -202,7 +202,7 @@ public class ProductController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/low-stock")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<List<ProductResponse>>> getLowStocksProducts() {
 
         List<ProductResponse> products = productService.getLowStockProduct();

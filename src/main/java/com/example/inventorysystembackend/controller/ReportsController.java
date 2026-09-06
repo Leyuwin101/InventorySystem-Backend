@@ -38,7 +38,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/sales-summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<SalesSummaryReportResponse>> getSalesSummary(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
@@ -54,7 +54,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/inventory-movement")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<InventoryMovementReportResponse>> getInventoryMovement(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
@@ -70,7 +70,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/low-stock")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<LowStockReportResponse>> getLowStock(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
@@ -86,7 +86,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/category-performance")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<CategoryPerformanceReportResponse>> getCategoryPerformance(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {
@@ -102,7 +102,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/supplier-performance")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<SupplierPerformanceReportResponse>> getSupplierPerformance(
             @Valid @ModelAttribute ReportFilterRequest request
     ) {

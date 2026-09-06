@@ -31,7 +31,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<DashboardSummaryResponse>> getDashboardSummary() {
 
         DashboardSummaryResponse response = dashboardService.getDashboardSummary();

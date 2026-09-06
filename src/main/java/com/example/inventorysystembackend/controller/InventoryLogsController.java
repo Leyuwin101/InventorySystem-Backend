@@ -38,7 +38,7 @@ public class InventoryLogsController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CASHIER', 'INVENTORY_CLERK', 'GUEST')")
     public ResponseEntity<ApiRes<PaginatedInventoryLogsResponse>> getInventoryLogs(
             @Valid @ModelAttribute InventoryLogFilterRequest request
     ) {
